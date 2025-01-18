@@ -178,6 +178,100 @@ def read_lists_posts(request):
     return JsonResponse(response_data, status=200)
       
 
+
+
+
+
 @csrf_exempt
-def put_posts_id(request):
+def put_posts_id(request, id):
     print("Inside Put_Post_Id")
+    
+    if request.method == "PUT":
+        try:
+            # Log the raw body
+            print(f"Raw request body: {request.body}")
+            
+            # Decode and parse JSON
+            data = json.loads(request.body.decode('utf-8'))
+            print(f"Parsed JSON: {data}")
+            
+            # Validate required fields
+            required_fields = ["id", "reference_number", "name", "email", "phone_number", "dob", "idproof"]
+            for field in required_fields:
+                if field not in data:
+                    print(f"Missing required field: {field}")
+                    return JsonResponse({
+                        "status": "error",
+                        "message": f"Missing required field: {field}"
+                    }, status=400)
+            
+            # Ensure the ID matches
+            if data["id"] != id:
+                print("ID mismatch between URL and request body")
+                return JsonResponse({
+                    "status": "error",
+                    "message": "ID mismatch between URL and request body"
+                }, status=400)
+            
+            # Simulated update logic
+            print(f"Updating post with ID: {id}")
+            updated_data = {
+                "id": id,
+                "reference_number": data["reference_number"],
+                "name": data["name"],
+                "email": data["email"],
+                "phone_number": data["phone_number"],
+                "dob": data["dob"],
+                "idproof": data["idproof"]
+            }
+            print(f"Updated data: {updated_data}")
+            
+            return JsonResponse({
+                "status": "success",
+                "message": "Post updated successfully",
+                "data": updated_data
+            }, status=200)
+        
+        except json.JSONDecodeError as e:
+            # Log invalid JSON error
+            print(f"JSONDecodeError: {e}")
+            return JsonResponse({
+                "status": "error",
+                "message": "Invalid JSON payload. Ensure the body contains properly formatted JSON."
+            }, status=400)
+        
+        except Exception as e:
+            # Log unexpected errors
+            print(f"Unhandled exception: {e}")
+            return JsonResponse({
+                "status": "error",
+                "message": "An internal error occurred. Please try again later."
+            }, status=500)
+    
+    print("Invalid HTTP method")
+    return JsonResponse({
+        "status": "error",
+        "message": "Invalid HTTP method. Use PUT for this endpoint."
+    }, status=405)
+
+
+
+
+@csrf_exempt
+def delete_posts_id(request, id):
+    print("Inside Delete_Post_Id")
+
+    if request.method == "DELETE":
+        print("Using DELETE method")
+
+        # Perform the actual deletion logic here
+        response_data = {"status": "success", "message": "Post deleted successfully."}
+        return JsonResponse(response_data, status=200)
+
+    # If method is not DELETE, return 405 Method Not Allowed
+    response_data = {"status": "error", "message": "Invalid HTTP method. Use DELETE for this endpoint."}
+    return JsonResponse(response_data, status=405)
+
+
+
+
